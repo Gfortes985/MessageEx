@@ -3,9 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "echo 'web app scaffolded - setup Vite/React next'",
-    "build": "echo 'build not configured yet'",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "echo 'lint not configured yet'",
     "test": "echo 'tests not configured yet'"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
   }
 }

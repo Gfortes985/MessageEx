@@ -1,8 +1,7 @@
-# Web App Scaffold
+# Web App
 
-Плановый стек: React + Vite + тёмная дизайн-система.
+React + Vite клиент с базовой auth-страницей в тёмной теме.
 
-Следующие шаги:
-1. Инициализировать Vite React TypeScript.
-2. Добавить базовые экраны auth.
-3. Подключить API и сокеты.
+## Команды
+- `npm run dev --workspace @messageex/web`
+- `npm run build --workspace @messageex/web`

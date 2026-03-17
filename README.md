@@ -4,7 +4,7 @@ Monorepo-скелет для MVP мессенджера (Android + Desktop + Nod
 
 ## Структура
 - `apps/server` — NestJS backend (auth scaffold + API base)
-- `apps/web` — заготовка web/desktop клиента
+- `apps/web` — React + Vite web клиент (auth UI в тёмной теме)
 - `apps/mobile` — заготовка Android клиента
 - `packages/shared-types` — общие типы
 
@@ -23,4 +23,5 @@ docker compose up -d
 - Базовая monorepo-структура.
 - Docker-инфраструктура PostgreSQL/Redis/MinIO.
 - Backend auth endpoints: register/login/refresh/logout (scaffold).
+- Web auth UI (React) и визуальный mockup экрана входа.
 - `.env.example` на корне и в приложениях.

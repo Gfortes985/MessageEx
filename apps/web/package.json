@@ -1,0 +1,11 @@
+{
+  "name": "@messageex/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'web app scaffolded - setup Vite/React next'",
+    "build": "echo 'build not configured yet'",
+    "lint": "echo 'lint not configured yet'",
+    "test": "echo 'tests not configured yet'"
+  }
+}

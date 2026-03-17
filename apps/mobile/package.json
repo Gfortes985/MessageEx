@@ -1,0 +1,10 @@
+{
+  "name": "@messageex/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "echo 'mobile app scaffolded - setup React Native next'",
+    "lint": "echo 'lint not configured yet'",
+    "test": "echo 'tests not configured yet'"
+  }
+}

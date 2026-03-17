@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, RefreshDto, RegisterDto } from './auth.dto';
+import { LoginDto, LogoutDto, RefreshDto, RegisterDto } from './auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +22,27 @@ export class AuthController {
   }
 
   @Post('logout')
-  logout() {
-    return this.authService.logout();
+  logout(@Body() dto: LogoutDto) {
+    return this.authService.logout(dto.refreshToken);
+  }
+
+  @Get('me')
+  me(@Headers('authorization') authorization: string | undefined) {
+    const token = this.extractBearerToken(authorization);
+    return this.authService.me(token);
+  }
+
+  private extractBearerToken(header: string | undefined) {
+    if (!header) {
+      throw new UnauthorizedException('Authorization header is required');
+    }
+
+    const [scheme, token] = header.split(' ');
+
+    if (scheme !== 'Bearer' || !token) {
+      throw new UnauthorizedException('Authorization must be a Bearer token');
+    }
+
+    return token;
   }
 }

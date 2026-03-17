@@ -22,6 +22,6 @@ docker compose up -d
 ## Что уже выполнено по плану
 - Базовая monorepo-структура.
 - Docker-инфраструктура PostgreSQL/Redis/MinIO.
-- Backend auth endpoints: register/login/refresh/logout (scaffold).
+- Backend auth endpoints: register/login/refresh/logout + me (with refresh revocation & rotation in-memory scaffold).
 - Web auth UI (React) и визуальный mockup экрана входа.
 - `.env.example` на корне и в приложениях.

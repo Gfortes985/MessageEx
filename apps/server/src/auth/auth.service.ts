@@ -11,9 +11,15 @@ type UserRecord = {
   passwordHash: string;
 };
 
+type TokenPayload = {
+  sub: string;
+  email: string;
+};
+
 @Injectable()
 export class AuthService {
   private users = new Map<string, UserRecord>();
+  private refreshTokenOwnerByToken = new Map<string, string>();
 
   constructor(private readonly jwtService: JwtService) {}
 
@@ -31,7 +37,7 @@ export class AuthService {
     };
     this.users.set(user.email, user);
 
-    return this.issueTokens(user.id, user.email);
+    return this.issueTokens(user);
   }
 
   async login(dto: LoginDto) {
@@ -40,27 +46,42 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.issueTokens(user.id, user.email);
+    return this.issueTokens(user);
   }
 
   async refresh(refreshToken: string) {
-    try {
-      const payload = await this.jwtService.verifyAsync<{ sub: string; email: string }>(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET || 'change_me_refresh',
-      });
-      return this.issueTokens(payload.sub, payload.email);
-    } catch {
-      throw new UnauthorizedException('Invalid refresh token');
+    const payload = await this.verifyRefreshToken(refreshToken);
+    const ownerId = this.refreshTokenOwnerByToken.get(refreshToken);
+
+    if (!ownerId || ownerId !== payload.sub) {
+      throw new UnauthorizedException('Refresh token was revoked');
     }
+
+    this.refreshTokenOwnerByToken.delete(refreshToken);
+
+    const user = this.findUserOrThrow(payload.email);
+    return this.issueTokens(user);
   }
 
-  async logout() {
+  async logout(refreshToken: string) {
+    this.refreshTokenOwnerByToken.delete(refreshToken);
     return { ok: true };
   }
 
-  private async issueTokens(userId: string, email: string) {
+  async me(accessToken: string) {
+    const payload = await this.verifyAccessToken(accessToken);
+    const user = this.findUserOrThrow(payload.email);
+
+    return {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+    };
+  }
+
+  private async issueTokens(user: UserRecord) {
     const accessToken = await this.jwtService.signAsync(
-      { sub: userId, email },
+      { sub: user.id, email: user.email },
       {
         secret: process.env.JWT_ACCESS_SECRET || 'change_me_access',
         expiresIn: process.env.JWT_ACCESS_TTL || '900s',
@@ -68,13 +89,44 @@ export class AuthService {
     );
 
     const refreshToken = await this.jwtService.signAsync(
-      { sub: userId, email },
+      { sub: user.id, email: user.email },
       {
         secret: process.env.JWT_REFRESH_SECRET || 'change_me_refresh',
         expiresIn: process.env.JWT_REFRESH_TTL || '30d',
       },
     );
 
+    this.refreshTokenOwnerByToken.set(refreshToken, user.id);
+
     return { accessToken, refreshToken };
+  }
+
+  private async verifyRefreshToken(refreshToken: string) {
+    try {
+      return await this.jwtService.verifyAsync<TokenPayload>(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET || 'change_me_refresh',
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  private async verifyAccessToken(accessToken: string) {
+    try {
+      return await this.jwtService.verifyAsync<TokenPayload>(accessToken, {
+        secret: process.env.JWT_ACCESS_SECRET || 'change_me_access',
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid access token');
+    }
+  }
+
+  private findUserOrThrow(email: string) {
+    const user = this.users.get(email);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
   }
 }
